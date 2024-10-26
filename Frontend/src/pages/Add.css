@@ -1,0 +1,14 @@
+.homepage {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto 1fr;
+    justify-items: center;
+    height: 100vh;
+    padding-top: 10%;
+    background-color: lightblue;
+}
+
+.title {
+    font-weight: bold;
+    font-size: 75px;
+}

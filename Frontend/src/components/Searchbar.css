@@ -1,0 +1,16 @@
+.search {
+    margin-left: 10px;
+    margin-right: 10px;
+    width: 350px;
+    height: 30px;
+}
+
+.modeselect {
+    height: 30px;
+    background-color: royalblue;
+}
+
+.submit {
+    background-color: royalblue;
+    height: 30px;
+}
