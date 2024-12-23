@@ -1,65 +1,38 @@
-from flask import Response
+from Const import CHUNK_SIZE, USE_COLS, ID_THRESHOLD
 from random import randint
-
-import json
-
-
-def format_response(info: dict, status: int):
-
-    response = Response(
-        response = json.dumps(info),
-        status = status,
-        mimetype = "application/json"
-    )
-
-    response.status_code = status
-    response.headers.add("Access-Control-Allow-Origin", "*")
-    return response
+import pandas as pd
 
 
 class Server:
 
 
     def __init__(self):
-        
-        self.data = {}
 
+        self.data = []
+        self.ids = set()
     
-    def generate_id(self):
 
-        CAP = 1000000000
-        id = randint(1, CAP)
+    def upload_data(self, data):
 
-        while id in self.data:
-            id = randint(1, CAP)
+        for data_chunk in pd.read_csv(data, chunksize=CHUNK_SIZE, usecols=USE_COLS, parse_dates=["Decision Date"]):
+
+            records = data_chunk.to_dict('records')
+            for score in records:
+
+                if pd.isna(score["Decision Date"]):
+                    score["Decision Date"] = None
+                
+                new_id = randint(1, ID_THRESHOLD)
+                while new_id in self.ids:
+                    new_id = randint(1, ID_THRESHOLD)
+                
+                self.ids.add(new_id)
+                score["id"] = new_id
+
+                
+            self.data += records
         
-        return id
-
     
-    def upload_spreadsheet(self, link: str):
-        pass
+    def get_data(self):
 
-
-    def upload_singular(self, year: int, school: str, program: str, average: float, application: str, decision_date: str):
-        
-        id = self.generate_id()
-        self.data[id] = {
-            "id": id,
-            "year": year,
-            "school": school,
-            "program": program,
-            "average": average,
-            "application": application,
-            "decision_date": decision_date
-        }
-
-        # probably have to do checks here to determine if the data is valid or not later
-
-        response = self.data[id]
-        response["status"] = "success"
-        return format_response(response)
-
-
-
-
-
+        return self.data

@@ -1,0 +1,28 @@
+.viewTable {
+
+    display: grid;
+    justify-content: center;
+    margin-top: 5%;
+    margin-bottom: 5%;
+    border-collapse: collapse;
+
+}
+
+.rowTable:nth-child(odd) {
+
+    background-color: lightsteelblue;
+
+}
+
+th, td {
+
+    padding: 5px;
+
+}
+
+th {
+
+    background-color: steelblue;
+    color: white;
+
+}
