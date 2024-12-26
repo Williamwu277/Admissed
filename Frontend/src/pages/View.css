@@ -1,8 +1,8 @@
 .viewTable {
 
-    display: grid;
-    justify-content: center;
-    margin-top: 5%;
+    width: 80%;
+    max-width: 1100px;
+    margin: 0 auto;
     margin-bottom: 5%;
     border-collapse: collapse;
 
@@ -11,6 +11,14 @@
 .rowTable:nth-child(odd) {
 
     background-color: lightsteelblue;
+
+}
+
+.optionTable {
+
+    margin: 0 auto;
+    margin-top: 5%;
+    margin-bottom: 0;
 
 }
 

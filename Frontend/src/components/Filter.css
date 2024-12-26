@@ -1,0 +1,71 @@
+.statistics {
+}
+
+.mainSelection {
+    display: grid;
+    grid-template-columns: 17% 7% 20% 20% 10%;
+    place-content: space-evenly;
+    align-items: center;
+    background-color: steelblue;
+    width: 80%;
+    max-width: 980px;
+    margin: 0 auto;
+    margin-top: 5%;
+    height: 10%;
+    padding-left: 60px;
+    padding-right: 60px;
+}
+
+.secondarySelection {
+    display: grid;
+    justify-content: center;
+    justify-items: center;
+    grid-template-columns: auto;
+    background-color: lightsteelblue;
+    width: 80%;
+    height: 300px;
+    max-width: 980px;
+    margin: 0 auto;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    padding-bottom: 40px;
+    padding-left: 60px;
+    padding-right: 60px;
+}
+
+.roundBorders {
+    border-radius: 20px;
+}
+
+.roundTopBorders {
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+}
+
+.scrollSection {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    justify-content: center;
+    height: 200px;
+}
+
+.scrollBox {
+    display: grid;
+    grid-template-columns: auto auto;
+    align-items: center;
+    background-color: white;
+    overflow:auto;
+    height: 80%;
+    padding: 10px 10px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.scrollP{
+    margin: 0 0;
+}
+
+.chosenP{
+    margin: 0 0;
+    font-weight: bold;
+}

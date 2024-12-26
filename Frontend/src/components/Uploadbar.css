@@ -1,11 +1,56 @@
-.search {
-    margin-left: 10px;
-    margin-right: 10px;
-    width: 350px;
-    height: 30px;
+.uploadBar {
+    width: 675px;
+    max-height: 100px;
+    background-color: lightsteelblue;
+    display: grid;
+    place-items: center;
+    border-radius: 25px;
+    grid-template-columns: 250px 200px 200px;
+}
+
+.uploadSingleBar {
+    width: 575px;
+    max-height: 420px;
+    background-color: lightsteelblue;
+    display: grid;
+    place-items: center;
+    border-radius: 25px;
+    grid-template-columns: 200px 200px 100px;
+    grid-template-rows: 100px 40px 40px 40px 40px 40px 40px;
 }
 
 .submit {
     background-color: steelblue;
-    height: 30px;
+    border: none;
+    color: white;
+    padding: 15px 40px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.submit:hover {
+    background-color: #c5d8eb;
+}
+
+.writing {
+    font-weight: bold;
+    color: white;
+}
+
+.uploadFile {
+    width: 100px;
+    background-color: white;
+    border: none;
+    color: steelblue;
+    padding: 10px 40px;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 12.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.uploadFile:hover {
+    background-color: #c5d8eb;
 }

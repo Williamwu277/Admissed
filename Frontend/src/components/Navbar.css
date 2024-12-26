@@ -4,9 +4,30 @@
     background-color: steelblue;
     display: flex;
     align-items: last baseline;
-    gap: 30px;
+    gap: 15px;
     padding-left: 5%;
-    height: 100px;
-    margin-bottom: 0%;
+    height: 125px;
+    margin-bottom: 0;
 
+}
+
+.logoTitle {
+    color: white;
+    font-size: 30px;
+    margin-right: 30px;
+}
+
+.navButton {
+
+    background-color: steelblue;
+    color: white;
+    border: none;
+    text-align: center;
+    display: inline-block;
+    padding: 10px 25px;
+    font-size: 12px;
+}
+
+.navButton:hover {
+    background-color: lightsteelblue;
 }

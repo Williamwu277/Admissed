@@ -1,7 +1,8 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Annotated
 from server import Server
+from typing import List
 import uvicorn
 import json
 
@@ -21,22 +22,13 @@ app.add_middleware(
 
 
 @app.post("/api/upload_spreadsheet")
-def get_spreadsheet(data: UploadFile = File(...)):
+def get_spreadsheet(data: UploadFile = File(...), ids: List[str] = Form(...)):
     
     # TODO: Santitization 
     # * limit file size
     # * check file type
-
-    server.upload_data(data.file)
-
-
-@app.get("/api/get_data")
-def get_data():
-
-    # TODO: return only say 1000 results at a time
-
-    data = server.get_data()
-    return data
+    
+    return server.upload_data(data.file, ids)
 
 
 if __name__ == "__main__":
