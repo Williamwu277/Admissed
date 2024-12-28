@@ -31,7 +31,34 @@ function Filter() {
 
     async function generateGraphs() {
 
-        //const response = await fetch()
+        await fetch("http://0.0.0.0:8000/api/get_graphs", {
+
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                "data": data,
+                "main_query": {
+                    "Year": selected[0],
+                    "School": selected[1],
+                    "Program": selected[2]
+                },
+                "filters": {
+                    "Year": subYears,
+                    "School": subSchools,
+                    "Program": subPrograms
+                }
+            })
+        }).then((response) => {
+
+            return response.json();
+
+        }).then((response) => {
+
+            console.log(response);
+
+        });
 
     }
 
@@ -82,7 +109,7 @@ function Filter() {
                     {renderScrollBar(schoolList, selected[1], setSubSchools, subSchools)}
                     {renderScrollBar(programList, selected[2], setSubPrograms, subPrograms)}
                 </div>
-                <button>Generate</button>
+                <button onClick={generateGraphs}>Generate</button>
             </div>
         )
     }

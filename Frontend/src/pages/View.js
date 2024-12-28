@@ -13,7 +13,7 @@ function View() {
     const {data, setData} = useContext(DataContext);
     const [page, setPage] = useState(1);
     const [mode, setMode] = useState("view");
-    // view mode, sort mode, filter mode, delete mode
+    // view mode, sort mode, filter mode, delete mode, incomplete mode
     const [sortBy, setSort] = useState(["Year", "Up"]);
     // filters
     const [filter, setFilter] = useState({
@@ -27,7 +27,7 @@ function View() {
 
     function renderMode() {
         
-        if (mode === "view" || mode === "edit"){
+        if (mode === "view" || mode === "edit" || mode === "incomplete"){
             return (
                 <tr>
                     {
@@ -83,7 +83,7 @@ function View() {
         const rangeEnd = Math.min(data.length, page * 100);
 
         const output = filteredData.slice(rangeStart, rangeEnd).map(score =>
-            <tr className="rowTable" key={score.id}>
+            <tr className={score["Flag"] === "Y" ? " red" : "rowTable" } key={score.id}>
                 {
                     (mode === "edit" ? 
                         (tableHeaders.map(header => 
@@ -155,6 +155,7 @@ function View() {
                         <td><button onClick={sortHandler}>Sort</button></td>
                         <td><button onClick={filterHandler}>Filter</button></td>
                         <td><button onClick={editHandler}>Edit</button></td>
+                        <td><button onClick={() => setSort(["Flag", "Up"])}>Incomplete</button></td>
                         <td>Page {page}</td>
                         <td><input type="range" min="1" max={Math.ceil(data.length / TABLE_SIZE)} value={page} onChange={(v)=>setPage(v.target.value)}></input></td>
                     </tr>
