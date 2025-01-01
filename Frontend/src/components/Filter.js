@@ -1,11 +1,14 @@
-import { useState, useContext} from "react";
-import { DataContext } from "./../DataContext";
+import { useState, useContext } from "react";
+import { useNavigate} from "react-router-dom";
+import { DataContext, GraphContext } from "../Context";
 import "./Filter.css";
 
 
 function Filter() {
 
+    const navigate = useNavigate();
     const {data, setData} = useContext(DataContext);
+    const {graphs, setGraphs} = useContext(GraphContext);
     const [selected, setSelected] = useState(null);
 
     const yearList = [... (new Set(data.map(score => score["Year"])))].sort();
@@ -19,6 +22,7 @@ function Filter() {
     const [subYears, setSubYears] = useState([]);
     const [subSchools, setSubSchools] = useState([]);
     const [subPrograms, setSubPrograms] = useState([]);
+    let uploadClicked = false;
 
     if(data.length === 0)
     {
@@ -31,6 +35,11 @@ function Filter() {
 
     async function generateGraphs() {
 
+        if(uploadClicked){
+            return;
+        }
+
+        uploadClicked = true;
         await fetch("http://0.0.0.0:8000/api/get_graphs", {
 
             method: 'POST',
@@ -56,9 +65,11 @@ function Filter() {
 
         }).then((response) => {
 
-            console.log(response);
+            setGraphs(response);
+            navigate("/report")
 
         });
+        uploadClicked = false;
 
     }
 

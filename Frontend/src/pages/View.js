@@ -1,6 +1,7 @@
 import Navbar from "../components/Navbar.js";
+import Filter from "../components/Filter.js";
 import { useState, useContext } from "react";
-import { DataContext } from "./../DataContext";
+import { DataContext } from "../Context.js";
 import "./View.css";
 
 // TODO: specify maximum table width
@@ -149,6 +150,8 @@ function View() {
     return (
         <div>
             <Navbar></Navbar>
+            <div className="viewPadder"></div>
+            <Filter></Filter>
             <table className="optionTable">
                 <tbody>
                     <tr>

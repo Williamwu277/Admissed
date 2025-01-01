@@ -8,6 +8,8 @@
     padding-left: 5%;
     height: 125px;
     margin-bottom: 0;
+    position: fixed;
+    width: 100%;
 
 }
 

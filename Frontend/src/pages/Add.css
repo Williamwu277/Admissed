@@ -4,7 +4,8 @@
     grid-auto-rows: 225px 1fr;
     justify-items: center;
     height: 120vh;
-    padding-top: 6%;
+    width: 100%;
+    padding-top: 175px;
     background-image: url('./../../AdmissedBackground.jpg');
     background-size: cover;
 }

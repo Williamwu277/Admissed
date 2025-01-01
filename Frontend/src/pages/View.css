@@ -5,7 +5,7 @@
     margin: 0 auto;
     border-collapse: collapse;
     margin-bottom: 5%;
-    
+
 }
 
 .rowTable:nth-child(odd) {
@@ -16,10 +16,9 @@
 
 .optionTable {
 
+    padding-top: 50px;
     margin: 0 auto;
-    margin-top: 5%;
     margin-bottom: 0;
-
 }
 
 th, td {
@@ -37,4 +36,8 @@ th {
 
 .red {
     background-color: lightcoral;
+}
+
+.viewPadder {
+    padding-top: 150px;
 }

@@ -70,17 +70,24 @@ def get_graphs(query: UserQuery):
     '''
 
     ''' OUTPUT FORMAT
-    * Marks: mean median range min max
-    * Decision Date: earliest, latest, median
-    * Graphs
-       * Yearly % acceptance by grade (single program, single school)
-       * Yearly # acceptance by date (single program, single school)
-       * School based % acceptance (single program, multiple school)
-       * Program based % acceptance (multiple program, single school)
-           * # of values considered etc
+    {
+        "Description": str,
+        "Images": [
+            {
+                "Image": Base64 Str,
+                "Name": str,
+                "Description": str
+            }
+        ],
+        "Stats": {
+            "Percent Admission": float,
+            "Mean": float,
+            "Median": float,
+            "Max": float,
+            "Min": float
+        }
+    }
     '''
-
-    #print(query)
 
     return generate_graphs(query.main_query, query.filters, query.data)
 

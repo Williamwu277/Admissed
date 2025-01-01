@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { useNavigate} from "react-router-dom";
-import { DataContext } from "./../DataContext"; 
+import { DataContext } from "../Context"; 
 import "./Uploadbar.css";
 
 
@@ -60,6 +60,7 @@ function Uploadbar() {
     const [upload, setUpload] = useState();
     //const [singleUpload, setSingleUpload] = useState(["", "", "", "", "", ""]);
     const { data, setData } = useContext(DataContext);
+    let submitClicked = false;
 
     function fileUploadHandler(e) {
         setUpload(e.target.files[0]);
@@ -67,11 +68,16 @@ function Uploadbar() {
 
     async function fileSubmitHandler() {
 
+        if(submitClicked){
+            return;
+        }
+
         if (upload.type !== "text/csv"){
             alert("CSV Only");
             return;
         }
         
+        submitClicked = true;
         const curIds = data.map((value) => value.id);
         const formData = new FormData();
         formData.append('data', upload);
@@ -97,6 +103,7 @@ function Uploadbar() {
             alert(error);
 
         });
+        submitClicked = false;
         
     }
 

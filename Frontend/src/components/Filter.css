@@ -1,6 +1,3 @@
-.statistics {
-}
-
 .mainSelection {
     display: grid;
     grid-template-columns: 17% 7% 20% 20% 10%;
@@ -10,10 +7,10 @@
     width: 80%;
     max-width: 980px;
     margin: 0 auto;
-    margin-top: 5%;
     height: 10%;
     padding-left: 60px;
     padding-right: 60px;
+    margin-top: 2%
 }
 
 .secondarySelection {
