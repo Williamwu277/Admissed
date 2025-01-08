@@ -34,3 +34,10 @@
 .figureTitle {
     margin-bottom: 0px;
 }
+
+.statisticsNA {
+    display: grid;
+    justify-content: center;
+    margin-top: 5%;
+    color: steelblue;
+}

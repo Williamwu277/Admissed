@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { useNavigate} from "react-router-dom";
-import { DataContext } from "../Context"; 
+import { DataContext, AlertContext } from "../Context"; 
 import "./Uploadbar.css";
 
 
@@ -60,6 +60,7 @@ function Uploadbar() {
     const [upload, setUpload] = useState();
     //const [singleUpload, setSingleUpload] = useState(["", "", "", "", "", ""]);
     const { data, setData } = useContext(DataContext);
+    const { alert, setAlert } = useContext(AlertContext);
     let submitClicked = false;
 
     function fileUploadHandler(e) {
@@ -68,12 +69,17 @@ function Uploadbar() {
 
     async function fileSubmitHandler() {
 
+        const maxSize = 5 * 1024 * 1024; // 5 MB
         if(submitClicked){
             return;
-        }
-
-        if (upload.type !== "text/csv"){
-            alert("CSV Only");
+        }else if(upload == null){
+            setAlert("No File Selected");
+            return;
+        }else if (upload.type !== "text/csv"){
+            setAlert("CSV Files Only");
+            return;
+        }else if (upload.size > maxSize){
+            setAlert("File Exceeds 5 MB");
             return;
         }
         
@@ -94,15 +100,19 @@ function Uploadbar() {
 
         }).then((response) => {
 
-            console.log(response);
-            setData(data.concat(response));
-            navigate("/view");
+            if ("detail" in response){
+                setAlert(response["detail"]);
+            }else{
+                setData(data.concat(response));
+                navigate("/view");
+            }
 
         }).catch((error) => {
-
-            alert(error);
+            
+            setAlert("Error when Fetching");
 
         });
+
         submitClicked = false;
         
     }

@@ -1,6 +1,6 @@
 import Navbar from "../components/Navbar.js";
 import { GraphContext } from "../Context.js";
-import { useState, useContext } from "react";
+import { useContext } from "react";
 import "./Statistics.css";
 
 
@@ -11,7 +11,13 @@ function Statistics() {
     function renderReport(){
 
         if(graphs == null){
-            return <></>
+            return (
+                <div className="statisticsNA">
+                    <h1>
+                        Submit Query to Generate Report
+                    </h1>
+                </div>
+            )
         }
 
         return (
@@ -25,11 +31,11 @@ function Statistics() {
                     <table>
                         <tbody>
                             <tr>
-                                <th>Percentage of Admission</th>
-                                <th>Mean Admission Average</th>
-                                <th>Median Admission Average</th>
-                                <th>Min Admission Average</th>
-                                <th>Max Admission Average</th>
+                                <th>% Admission</th>
+                                <th>Mean Admission Avg</th>
+                                <th>Median Admission Avg</th>
+                                <th>Min Admission Avg</th>
+                                <th>Max Admission Avg</th>
                             </tr>
                             <tr>
                                 <td>{graphs["Stats"]["Percent Admission"]}%</td>
@@ -42,7 +48,7 @@ function Statistics() {
                     </table>
                     {
                         graphs["Images"].map((img, ind) => 
-                            <div className="graph">
+                            <div key={img["Name"]} className="graph">
                                 <h4 className="figureTitle">Figure {ind+1}. {img["Name"]}</h4>
                                 <hr className="separator" />
                                 <img src={"data:image/jpeg;base64,"+img["Image"]}></img>

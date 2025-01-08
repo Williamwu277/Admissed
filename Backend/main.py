@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Annotated
 from server import upload_data, generate_graphs
@@ -11,6 +11,7 @@ import json
 app = FastAPI()
 
 # TODO: Figure out proper headers to allow
+# TODO: insert contact information
 
 app.add_middleware(
     CORSMiddleware,
@@ -30,11 +31,20 @@ class UserQuery(BaseModel):
 @app.post("/api/upload_spreadsheet")
 def get_spreadsheet(data: UploadFile = File(...), ids: List[str] = Form(...)):
     
-    # TODO: Santitization 
-    # * limit file size
-    # * check file type
+    # check file size and extension
+    file_size_limit = 5 * 1024 * 1024 # 5 MB
+    if len(data.file.read()) > file_size_limit:
+        raise HTTPException(status_code=413, detail="File Exceeds 5 MB")
+    data.file.seek(0)
+
+    if data.filename.rsplit(".", 1)[1].lower() != "csv" and "csv" in data.content_type:
+        raise HTTPException(status_code=400, detail="CSV Files Only")
     
-    return upload_data(data.file, ids)
+    ret = upload_data(data.file, ids)
+    if ret["Status"] >= 400:
+        raise HTTPException(status_code=ret["Status"], detail=ret["Description"])
+    
+    return ret["Description"]
 
 
 @app.post("/api/get_graphs")
@@ -89,7 +99,11 @@ def get_graphs(query: UserQuery):
     }
     '''
 
-    return generate_graphs(query.main_query, query.filters, query.data)
+    ret = generate_graphs(query.main_query, query.filters, query.data)
+    if ret["Status"] >= 400:
+        raise HTTPException(status_code=ret["Status"], detail=ret["Description"])
+
+    return ret["Description"]
 
 
 if __name__ == "__main__":

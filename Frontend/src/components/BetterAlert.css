@@ -1,0 +1,27 @@
+.alertBox {
+    position: fixed;
+    z-index: 1;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    width: 350px;
+    height: 75px;
+    display: grid;
+    grid-template-columns: 30px 250px;
+    column-gap: 25px;
+    align-items: center;
+    justify-content: center;
+    background-color: lightcoral;
+    color: white;
+    border-radius: 20px;
+}
+
+.cancelButton {
+    width: 25px;
+    height: 25px;
+}
+
+.cancelButton:hover {
+    width:22px;
+    height:22px;
+}

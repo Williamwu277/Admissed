@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { useNavigate} from "react-router-dom";
-import { DataContext, GraphContext } from "../Context";
+import { DataContext, GraphContext, AlertContext } from "../Context";
 import "./Filter.css";
 
 
@@ -9,11 +9,13 @@ function Filter() {
     const navigate = useNavigate();
     const {data, setData} = useContext(DataContext);
     const {graphs, setGraphs} = useContext(GraphContext);
+    const {alert, setAlert} = useContext(AlertContext);
     const [selected, setSelected] = useState(null);
 
-    const yearList = [... (new Set(data.map(score => score["Year"])))].sort();
-    const schoolList = [... (new Set(data.map(score => score["School"])))].sort();
-    const programList = [... (new Set(data.map(score => score["Program"])))].sort();
+    let filteredData = data.filter(score => score["Flag"] === "N");
+    const yearList = [... (new Set(filteredData.map(score => score["Year"])))].sort();
+    const schoolList = [... (new Set(filteredData.map(score => score["School"])))].sort();
+    const programList = [... (new Set(filteredData.map(score => score["Program"])))].sort();
 
     const [selectYear, setSelectYear] = useState(yearList.length === 0 ? null : yearList[0]);
     const [selectSchool, setSelectSchool] = useState(schoolList.length === 0 ? null : schoolList[0]);
@@ -65,10 +67,19 @@ function Filter() {
 
         }).then((response) => {
 
-            setGraphs(response);
-            navigate("/report")
+            if("detail" in response){
+                setAlert(response["detail"]);
+            }else{
+                setGraphs(response);
+                navigate("/report");
+            }
+
+        }).catch((error) => {
+
+            setAlert("Error When Generating Report");
 
         });
+
         uploadClicked = false;
 
     }
@@ -79,16 +90,21 @@ function Filter() {
                 {arr.map(v => {
                     if (v === chosenValue){
                         return (
-                            <>
+                            
+                            <div key={v} className="scrollLine">
                                 <p className="chosenP">{v}</p>
                                 <div></div>
-                            </>
+                            </div>
+                            /*<>
+                                <p key={v} className="chosenP">{v}</p>
+                                <div key={v+"2"}></div>
+                            </>*/
                         )
                     }else{
                         return (
-                            <>
+                            <div key={v} className="scrollLine">
                                 <p className="scrollP">{v}</p>
-                                <input value={v} type="checkbox" disabled={subArr.length >= 5 && !subArr.includes(v)} onChange={
+                                <input className="filterBox" value={v} type="checkbox" disabled={subArr.length >= 5 && !subArr.includes(v)} onChange={
                                     (t) => {
                                         if(subArr.includes(t.target.value)){
                                             subSetter(subArr.filter((s) => s != t.target.value));
@@ -97,7 +113,7 @@ function Filter() {
                                         }
                                     }
                                 }></input>
-                            </>
+                            </div>
                         )
                     }
                 }
@@ -120,7 +136,7 @@ function Filter() {
                     {renderScrollBar(schoolList, selected[1], setSubSchools, subSchools)}
                     {renderScrollBar(programList, selected[2], setSubPrograms, subPrograms)}
                 </div>
-                <button onClick={generateGraphs}>Generate</button>
+                <button className="filterButton generateButton" onClick={generateGraphs}>Generate</button>
             </div>
         )
     }
@@ -128,31 +144,32 @@ function Filter() {
     return (
         <>
             <div className={"mainSelection "+(selected===null?"roundBorders":"roundTopBorders")}>
-                <p>Select Main Program:</p>
+                <h4>Select Main Program:</h4>
                 <select onChange={(v) => setSelectYear(v.target.value)}>
                 {
                     yearList.map(year => 
-                        <option value={year}>{year}</option>
+                        <option key={year} value={year}>{year}</option>
                     )
                 }
                 </select>
                 <select onChange={(v) => setSelectSchool(v.target.value)}>
                 {
                     schoolList.map(school => 
-                        <option value={school}>{school}</option>
+                        <option key={school} value={school}>{school}</option>
                     )
                 }
                 </select>
                 <select onChange={(v) => setSelectProgram(v.target.value)}>
                 {
                     programList.map(program => 
-                        <option value={program}>{program}</option>
+                        <option key={program} value={program}>{program}</option>
                     )
                 }
                 </select>
-                <button onClick={() => {
-                    setSelected([selectYear, selectSchool, selectProgram]);
-                    console.log(selected);
+                <button className="filterButton selectButton" onClick={() => {
+                    if(selectYear != null && selectSchool != null && selectProgram != null){
+                        setSelected([selectYear, selectSchool, selectProgram]);
+                    }
                 }}>Select</button>
             </div>
             <div>

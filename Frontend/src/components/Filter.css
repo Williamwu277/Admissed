@@ -4,13 +4,13 @@
     place-content: space-evenly;
     align-items: center;
     background-color: steelblue;
-    width: 80%;
-    max-width: 980px;
+    color: white;
+    width: 980px;
     margin: 0 auto;
-    height: 10%;
+    height: 75px;
     padding-left: 60px;
     padding-right: 60px;
-    margin-top: 2%
+    margin-top: 50px;
 }
 
 .secondarySelection {
@@ -41,28 +41,72 @@
 
 .scrollSection {
     display: grid;
-    grid-template-columns: auto auto auto;
+    grid-template-columns: 125px 350px 350px;
     justify-content: center;
     height: 200px;
 }
 
 .scrollBox {
     display: grid;
-    grid-template-columns: auto auto;
-    align-items: center;
+    row-gap: 5px;
     background-color: white;
-    overflow:auto;
-    height: 80%;
+    height: 150px;
     padding: 10px 10px;
     margin-left: 10px;
     margin-right: 10px;
+    overflow-x: hidden;
+}
+
+.scrollLine {
+    width: auto;
+    display: grid;
+    grid-template-columns: auto 10px;
+    column-gap: 10px;
 }
 
 .scrollP{
     margin: 0 0;
+    width: auto;
+    overflow: hidden;
+    text-wrap: nowrap;
+    text-overflow: ellipsis;
 }
 
 .chosenP{
     margin: 0 0;
     font-weight: bold;
+    width: auto;
+    -ms-overflow-style: hidden;
+    text-wrap: nowrap;
+    text-overflow: ellipsis;
+}
+
+.filterButton {
+    background-color: lightsteelblue;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.selectButton {
+    background-color: lightsteelblue;
+}
+
+.selectButton:hover {
+    background-color: #c5d8eb;
+}
+
+.generateButton {
+    background-color: steelblue;
+}
+
+.generateButton:hover {
+    background-color: #c5d8eb;
+}
+
+.filterBox {
+    height: 12px;
+    width: 12px;
 }

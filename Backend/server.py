@@ -14,10 +14,14 @@ matplotlib.use('agg')
 
 
 def date_add_year(r):
+    
     # depending on how many numerical / alphabetical characters
     # add the year in case its missing 
     s = r["Decision Date"]
     numeric, alphabetical = 0, 0
+
+    if pd.isna(s):
+        return pd.NA
 
     for i in range(len(s)):
         if s[i].isdigit():
@@ -28,25 +32,36 @@ def date_add_year(r):
     # determine which year to add
     y = r["Year"]
     try:
-        dt = pd.to_datetime(s + " " + y)
+        dt = pd.to_datetime(s + " " + y, dayfirst=True)
+
         if dt.month >= 7: 
             y = str(int(y) - 1)
     except:
         pass
     
     if alphabetical == 0 and numeric <= 4:
-        r["Decision Date"] = s + " " + y
+        s = s + " " + y
+
     elif alphabetical > 0 and numeric <= 2:
-        r["Decision Date"] = s + " " + y
+        s = s + " " + y
+    
+    s = pd.to_datetime(s, errors="coerce", dayfirst=True)
+    if pd.isna(s):
+        r["Decision Date"] = pd.NA
+    else:
+        r["Decision Date"] = s.strftime('%d-%m-%Y')
     
     return r
 
 
 def year_converter(y):
 
+    if pd.isna(y):
+        return pd.NA
+
     # try to convert to a valid year
     try:
-        v = int(y)
+        v = int(y.strip())
         assert(1900 <= v <= datetime.now().year)
         return str(v)
     except:
@@ -54,6 +69,9 @@ def year_converter(y):
 
 
 def average_converter(a):
+
+    if pd.isna(a):
+        return pd.NA
 
     # try to convert to a valid percentage
     a = re.sub(r"[^0-9.]", "", a)
@@ -69,6 +87,9 @@ def average_converter(a):
 
 def status_converter(s):
 
+    if pd.isna(s):
+        return pd.NA
+
     # one of accepted, deferred, waitlisted or rejected
     s = s.capitalize()
     if s in ["Accepted", "Deferred", "Waitlisted", "Rejected"]:
@@ -79,24 +100,36 @@ def status_converter(s):
 
 def school_converter(s):
 
+    if pd.isna(s):
+        return pd.NA
+    elif len(s.strip()) == 0:
+        return pd.NA
+
     # try best to convert to known school
     v = s.lower()
-    for k in SCHOOL_NICKNAMES:
-        if k in v:
-            return SCHOOL_NICKNAMES[k]
+    key_order = sorted([(len(nxt), nxt) for nxt in SCHOOL_NICKNAMES.keys()])[::-1]
+    for k in key_order:
+        if k[1] in v:
+            return SCHOOL_NICKNAMES[k[1]]
         
-    return s
+    return pd.NA
 
 
 def program_converter(s):
 
+    if pd.isna(s):
+        return pd.NA
+    elif len(s.strip()) == 0:
+        return pd.NA
+
     # try best to convert to known program
     v = s.lower()
-    for k in PROGRAM_NICKNAMES:
-        if k in v:
-            return PROGRAM_NICKNAMES[k]
+    key_order = sorted([(len(nxt), nxt) for nxt in PROGRAM_NICKNAMES.keys()])[::-1]
+    for k in key_order:
+        if k[1] in v:
+            return PROGRAM_NICKNAMES[k[1]]
         
-    return s
+    return pd.NA
 
 
 def validate_data(data):
@@ -107,7 +140,7 @@ def validate_data(data):
     data["Program"] = data["Program"].apply(lambda x: program_converter(x))
     data["Average"] = data["Average"].apply(lambda x: average_converter(x))
     data = data.apply(date_add_year, axis=1)
-    data["Decision Date"] = pd.to_datetime(data["Decision Date"], errors="coerce").dt.strftime('%Y-%m-%d')
+    #data["Decision Date"] = pd.to_datetime(data["Decision Date"], errors="coerce").dt.strftime('%Y-%m-%d')
 
     return data
 
@@ -117,14 +150,49 @@ def upload_data(data, ids):
     all_ids = set(ids)
 
     # read in data from csv, preprocess it while converting to string
-    data = pd.read_csv(
-        data, 
-        usecols=USE_COLS, 
-        dtype="str"
-    )
+    try:
+        data = pd.read_csv(
+            data, 
+            usecols=USE_COLS, 
+            dtype="string"
+        )
+    except pd.errors.EmptyDataError:
+        return {
+            "Status": 400,
+            "Description": "Data Missing Fields/Columns"
+        }
+    except pd.errors.ParserError:
+        return{
+            "Status": 400,
+            "Descrption": "Issue with Data Format"
+        }
+    except ValueError:
+        return {
+            "Status": 400,
+            "Description": "Data Missing Fields/Columns"
+        }
+    except Exception:
+        return {
+            "Status": 400,
+            "Description": "Issue with Uploaded Data"
+        }
+    
+    # if empty, return empty data
+    if data.empty:
+
+        return {
+            "Status": 400,
+            "Description": "Data Missing Fields/Columns"
+        }
 
     # validate data
-    data = validate_data(data)
+    try:
+        data = validate_data(data)
+    except Exception:
+        return {
+            "Status": 400,
+            "Description": "Error Parsing/Incorrect Data"
+        }
 
     # create id column
     ids = []
@@ -150,25 +218,65 @@ def upload_data(data, ids):
     data["Decision Date"] = data["Decision Date"].astype(str)
 
     records = data.to_dict('records')
-    return records
+    return {
+        "Status": 200,
+        "Description": records
+    }
 
 
 def generate_graphs(query, filters, data):
 
-    # TODO error checking for this function
-
-    original_table = pd.DataFrame(
-        data, 
-        columns=["Year", "Status", "School", "Program", "Average", "Decision Date"],
-        dtype="str"
-    )
+    try:
+        original_table = pd.DataFrame(
+            data, 
+            columns=["Year", "Status", "School", "Program", "Average", "Decision Date"],
+            dtype="string"
+        )
+    except pd.errors.EmptyDataError:
+        return {
+            "Status": 400,
+            "Description": "Data Missing Fields/Columns"
+        }
+    except pd.errors.ParserError:
+        return{
+            "Status": 400,
+            "Descrption": "Issue with Data Format"
+        }
+    except ValueError:
+        return {
+            "Status": 400,
+            "Description": "Data Missing Fields/Columns"
+        }
+    except Exception:
+        return {
+            "Status": 400,
+            "Description": "Issue with Uploaded Data"
+        }
     
     # validate data
     # same steps apply as in the upload function
-    original_table = validate_data(original_table)
+    try:
+        original_table = validate_data(original_table)
+    except Exception:
+        return {
+            "Status": 400,
+            "Description": "Error Parsing/Incorrect Data"
+        }
+
+    if not ["Program", "School", "Year"] == sorted(query.keys()):
+        return {
+            "Status": 400,
+            "Description": "Issue with Main Query"
+        }
+    elif not ["Program", "School", "Year"] == sorted(filters.keys()):
+        return {
+            "Status": 400,
+            "Description": "Issue with Secondary Queries"
+        }
+
 
     # convert decision date back to datetime object
-    original_table["Decision Date"] = pd.to_datetime(original_table["Decision Date"])
+    original_table["Decision Date"] = pd.to_datetime(original_table["Decision Date"], dayfirst=True)
 
     # kill rows with NA
     original_table = original_table.dropna()
@@ -195,14 +303,14 @@ def generate_graphs(query, filters, data):
     if len(filter_years) > 1:
         ret.append(generate_acceptance_percent_by_grade_yearly(pruned_table, filter_years, query))
         report_string += (
-            "It will also seek to examine the grade-based admission percentage over the years "
+            "It will also seek to examine the grade-based admission percentage over the year(s) "
             f"{filters["Year"][0] if len(filters["Year"]) == 1 else ", ".join(filters["Year"][:-1]) + " and " + filters["Year"][-1]}. "
         )
 
     if len(filter_schools) > 1:
         ret.append(generate_school_program_acceptance_rate(pruned_table, filter_schools, query))
         report_string += (
-            "In addition, the admission rate by grade for the schools "
+            "In addition, the admission rate by grade for the school(s) "
             f"{filters["School"][0] if len(filters["School"]) == 1 else ", ".join(filters["School"][:-1]) + " and " + filters["School"][-1]}"
             " will be considered too. "
         )
@@ -210,24 +318,27 @@ def generate_graphs(query, filters, data):
     if len(filter_programs) > 1 or len(filter_years) + len(filter_schools) == 2:
         ret.append(generate_acceptance_percent_multiple_program(pruned_table, filter_programs, query))
         report_string += (
-            "Moreover, the grade-wise admission rate will be computed over the programs "
+            "Moreover, the grade-wise admission rate will be computed over the program(s) "
             f"{filter_programs[0] if len(filter_programs) == 1 else ", ".join(filter_programs[:-1]) + " and " + filter_programs[-1]}. "
         )
 
     stat = generate_statistics(pruned_table, query)
 
     return {
-        "Description": (
-            f"This unofficial report will analyze the admission statistics of {query["Program"]} at {query["School"]} in the year {query["Year"]}. "
-            "It will calculate the monthly median admission average, monthly admission count, and admission count by grade. "
-            f"{report_string}"
-            "Finally, it will evaluate the general percentage admission, mean, median, min and max. "
-            "Note that since the data could be user-collected, the conclusions reached by this report are "
-            "subject to various biases and should be taken with a grain of salt. "
-            "A blank report could arise from missing and/or incorrect data."
-        ),
-        "Images": ret,
-        "Stats": stat
+        "Status": 200,
+        "Description": {
+            "Description": (
+                f"This unofficial report will analyze the admission statistics of {query["Program"]} at {query["School"]} in the year {query["Year"]}. "
+                "It will calculate the monthly median admission average, monthly admission count, and admission count by grade. "
+                f"{report_string}"
+                "Finally, it will evaluate the general percentage admission, mean, median, min and max. "
+                "Note that since the data could be user-collected, the conclusions reached by this report are "
+                "subject to various biases and should be taken with a grain of salt. "
+                "A blank report could arise from missing and/or incorrect data."
+            ),
+            "Images": ret,
+            "Stats": stat
+        }
     }
 
 
@@ -238,7 +349,7 @@ def generate_admissions_per_month_yearly(pruned_table, filter_years, query):
     ticks = np.arange(10)
     width = 1 if len(filter_years) == 1 else round(1 / len(filter_years), 1)
     offset = 0
-    months = []
+    x_label = []
     description = ""
 
     for year in sorted(filter_years):
@@ -247,21 +358,21 @@ def generate_admissions_per_month_yearly(pruned_table, filter_years, query):
         df = pruned_table[
             (pruned_table["School"].isin([query["School"]])) &
             (pruned_table["Program"].isin([query["Program"]])) &
-            (pd.to_datetime(str(int(year)-1) + " Sept 1") < pruned_table["Decision Date"]) &
-            (pruned_table["Decision Date"] < pd.to_datetime(year + " July 1"))
+            (pd.to_datetime(str(int(year)-1) + " Sept 1", dayfirst=True) < pruned_table["Decision Date"]) &
+            (pruned_table["Decision Date"] < pd.to_datetime(year + " July 1", dayfirst=True)) &
+            (pruned_table["Status"] == "Accepted")
         ][["Decision Date"]]
 
         # aggregate to months and count admissions
         df["Admission Count"] = 1
-        df = df.groupby(pd.Grouper(key="Decision Date", freq="M")).agg("sum")
-        df = df.reindex(pd.date_range(start=pd.to_datetime(str(int(year)-1) + " Sept 1"), end=pd.to_datetime(year + " July 1"), freq="M"), fill_value=0)
-        months = df["Month"] = df.index.map(lambda x: month_name[x.month][:3])
-    
+        df = df.groupby(pd.Grouper(key="Decision Date", freq="ME")).agg("sum")
+        df = df.reindex(pd.date_range(start=pd.to_datetime(str(int(year)-1) + " Sept 1", dayfirst=True), end=pd.to_datetime(year + " July 1", dayfirst=True), freq="ME"), fill_value=0)
+        x_label = months = df["Month"] = df.index.map(lambda x: month_name[x.month])
+
         # plot on the bar graph
         ax.bar(ticks+offset, height=df["Admission Count"], width=width, label=year)
         offset += width
 
-        print(df)
         if year == query["Year"]:
 
             counts = df["Admission Count"].tolist()
@@ -270,7 +381,7 @@ def generate_admissions_per_month_yearly(pruned_table, filter_years, query):
             main_rounds = []
 
             for nxt in counts:
-                if nxt[0] / max(mx, 1) >= 0.3:
+                if nxt[0] / max(mx, 1) >= 0.25:
                     main_rounds.append(nxt[1])
             
             if len(main_rounds) > 0:
@@ -286,7 +397,9 @@ def generate_admissions_per_month_yearly(pruned_table, filter_years, query):
     ax.set_xlabel("Month of School Year")
     ax.set_title(f"{query["Program"]} at {query["School"]}")
     ax.legend()
-    ax.set_xticks(ticks+(center_offset if width != 1 else 0), months)
+
+    x_label = [v[:3] for v in x_label]
+    ax.set_xticks(ticks+(center_offset if width != 1 else 0), x_label)
 
     img_file = io.BytesIO()
     plt.savefig(img_file, format="jpg")
@@ -315,25 +428,23 @@ def generate_median_per_month_yearly(pruned_table, filter_years, query):
         df = pruned_table[
             (pruned_table["School"].isin([query["School"]])) &
             (pruned_table["Program"].isin([query["Program"]])) &
-            (pd.to_datetime(str(int(year)-1) + " Sept 1") < pruned_table["Decision Date"]) &
-            (pruned_table["Decision Date"] < pd.to_datetime(year + " July 1")) &
+            (pd.to_datetime(str(int(year)-1) + " Sept 1", dayfirst=True) < pruned_table["Decision Date"]) &
+            (pruned_table["Decision Date"] < pd.to_datetime(year + " July 1", dayfirst=True)) &
             (pruned_table["Status"] == "Accepted")
         ][["Decision Date", "Average"]]
 
         # aggregate to months and find median
         df["Average"] = df["Average"].astype(float)
-        df = df.groupby(pd.Grouper(key="Decision Date", freq="M")).agg(np.median)
-        df = df.reindex(pd.date_range(start=pd.to_datetime(str(int(year)-1) + " Sept 1"), end=pd.to_datetime(year + " July 1"), freq="M"), fill_value=0)
+        df = df.groupby(pd.Grouper(key="Decision Date", freq="ME")).agg("median")
+        df = df.reindex(pd.date_range(start=pd.to_datetime(str(int(year)-1) + " Sept 1", dayfirst=True), end=pd.to_datetime(year + " July 1", dayfirst=True), freq="ME"), fill_value=0)
         months = df["Month"] = df.index.map(lambda x: month_name[x.month][:3])
-    
+
         # plot on the bar graph
         ax.bar(ticks+offset, height=df["Average"], width=width, label=year)
         offset += width
 
-        print(df)
-
     center_offset = 0.25
-    ax.set_ylim([70, 100])
+    ax.set_ylim([65, 105])
     ax.set_ylabel("Median Admission Percentage")
     ax.set_xlabel("Month of School Year")
     ax.set_title(f"{query["Program"]} at {query["School"]}")
@@ -347,7 +458,7 @@ def generate_median_per_month_yearly(pruned_table, filter_years, query):
 
     return {
         "Image": base64.b64encode(img_file.getvalue()).decode(),
-        "Name": f"Monthly Admission Percentage Median for {query["Program"]} at {query["School"]} in {query["Year"]}",
+        "Name": f"Monthly Median Admission % for {query["Program"]} at {query["School"]} in {query["Year"]}",
         "Description": (
             "Note that some data points may be skewed due to low sample size. Refer to the previous graph for such points."
         )
@@ -357,7 +468,7 @@ def generate_median_per_month_yearly(pruned_table, filter_years, query):
 def calculate_percentages(s):
 
     # remove outliers
-    if len(s) < 3:
+    if len(s) < 2:
         return np.nan
 
     v = s.value_counts(normalize=True)
@@ -389,9 +500,9 @@ def generate_acceptance_percent_by_grade_yearly(pruned_table, filter_years, quer
     
         plt.plot(df.index, df["Status"], label=year)
 
-        print(df)
-
     plt.ylabel("Percentage of Admission")
+    plt.ylim([0, 110])
+    plt.xlim([65, 105])
     plt.xlabel("Grade")
     plt.title(f"{query["Program"]} at {query["School"]}")
     plt.legend()
@@ -443,8 +554,6 @@ def generate_acceptance_number_by_grade(pruned_table, query):
     ax.bar(df.index, df["Accepted"], label="Accepted")
     ax.bar(df.index, df["Other"], label="Other", bottom=df["Accepted"])
 
-    print(df)
-
     ax.set_ylabel("Verdict Count")
     ax.set_xlabel("Grade")
     ax.set_title(f"{query["Program"]} at {query["School"]}")
@@ -484,9 +593,9 @@ def generate_school_program_acceptance_rate(pruned_table, filter_schools, query)
     
         plt.plot(df.index, df["Status"], label=school)
 
-        print(df)
-
     plt.ylabel("Percentage of Admission")
+    plt.ylim([0, 110])
+    plt.xlim([65, 105])
     plt.xlabel("Grade")
     plt.title(f"{query["Program"]} in {query["Year"]}")
     plt.legend()
@@ -525,9 +634,9 @@ def generate_acceptance_percent_multiple_program(pruned_table, filter_programs, 
     
         plt.plot(df.index, df["Status"], label=program)
 
-        print(df)
-
     plt.ylabel("Percentage of Admission")
+    plt.ylim([0, 110])
+    plt.xlim([65, 105])
     plt.xlabel("Grade")
     plt.title(f"{query["School"]} in {query["Year"]}")
     plt.legend()
