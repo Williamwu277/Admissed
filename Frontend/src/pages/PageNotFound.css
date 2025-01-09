@@ -1,0 +1,10 @@
+.notFound {
+    display: grid;
+    justify-content: center;
+    margin-top: 5%;
+    color: steelblue;
+}
+
+.notFoundPadder {
+    padding-top: 100px;
+}

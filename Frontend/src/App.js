@@ -2,6 +2,7 @@ import Add from './pages/Add.js';
 import View from './pages/View.js';
 import Statistics from "./pages/Statistics.js";
 import BetterAlert from "./components/BetterAlert.js";
+import PageNotFound from "./pages/PageNotFound.js";
 import { DataContext, GraphContext, AlertContext } from "./Context";
 import { Routes, Route } from "react-router-dom";
 import { useState } from "react";
@@ -23,6 +24,7 @@ function App() {
               <Route path="/add" element={<Add />} />
               <Route path="/view" element={<View />} />
               <Route path="/report" element={<Statistics />} />
+              <Route path="/*" element={<PageNotFound />} />
           </Routes>
         </AlertContext.Provider>
       </GraphContext.Provider>
