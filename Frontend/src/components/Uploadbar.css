@@ -1,11 +1,24 @@
 .uploadBar {
-    width: 675px;
-    max-height: 100px;
+    min-width: 275px;
+    max-width: 700px;
+    width: 50%;
     background-color: lightsteelblue;
     display: grid;
     place-items: center;
+    justify-content: center;
     border-radius: 25px;
-    grid-template-columns: 250px 200px 200px;
+    grid-template-columns: repeat(auto-fit, min(225px));
+    grid-auto-rows: repeat(auto-fit);
+    row-gap: 10px;
+    padding-top: 25px;
+    padding-bottom: 25px;
+    margin-bottom: 150px;
+}
+
+@media (max-width: 1400px) {
+    .uploadBar {
+        grid-template-columns: 225px;
+    }
 }
 
 .uploadSingleBar {

@@ -4,7 +4,7 @@
     top: 20%;
     left: 50%;
     transform: translate(-50%, 0);
-    width: 350px;
+    width: 375px;
     height: 75px;
     display: grid;
     grid-template-columns: 30px 250px;
@@ -24,4 +24,12 @@
 .cancelButton:hover {
     width:22px;
     height:22px;
+}
+
+.errorAlert {
+    background-color: lightcoral;
+}
+
+.loadingAlert {
+    background-color: lightseagreen;
 }

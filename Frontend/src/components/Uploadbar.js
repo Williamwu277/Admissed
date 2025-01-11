@@ -69,17 +69,17 @@ function Uploadbar() {
 
     async function fileSubmitHandler() {
 
-        const maxSize = 5 * 1024 * 1024; // 5 MB
+        const maxSize = 512 * 1024; // 500 KB
         if(submitClicked){
             return;
         }else if(upload == null){
-            setAlert("No File Selected");
+            setAlert(["No File Selected", "Error"]);
             return;
         }else if (upload.type !== "text/csv"){
-            setAlert("CSV Files Only");
+            setAlert(["CSV Files Only", "Error"]);
             return;
         }else if (upload.size > maxSize){
-            setAlert("File Exceeds 5 MB");
+            setAlert(["File Exceeds 500 KB", "Error"]);
             return;
         }
         
@@ -89,6 +89,7 @@ function Uploadbar() {
         formData.append('data', upload);
         formData.append('ids', curIds);
 
+        setAlert(["Loading ... Can Take Up to 30s", "Loading"]);
         await fetch("http://0.0.0.0:8000/api/upload_spreadsheet", {
 
             method: 'POST',
@@ -101,15 +102,16 @@ function Uploadbar() {
         }).then((response) => {
 
             if ("detail" in response){
-                setAlert(response["detail"]);
+                setAlert([response["detail"], "Error"]);
             }else{
+                setAlert(["Success!", "Success"]);
                 setData(data.concat(response));
                 navigate("/view");
             }
 
         }).catch((error) => {
             
-            setAlert("Error when Fetching");
+            setAlert(["Error When Fetching", "Error"]);
 
         });
 

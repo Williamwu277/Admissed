@@ -10,17 +10,18 @@ function BetterAlert() {
     const { alert, setAlert } = useContext(AlertContext);
 
     function onClose() {
-        setAlert("");
+        console.log(alert);
+        setAlert([]); 
     }
 
-    if(alert === ""){
+    if(alert.length == 0){
         return <></>
     }else{
         return (
             <>
-                <div className="alertBox">
+                <div className={alert[1] === "Error" ? "alertBox errorAlert" : "alertBox loadingAlert"}>
                     <img className="cancelButton" onClick={onClose} src={cancelImage}></img>
-                    <h4>{alert}</h4>
+                    <h4>{alert[0]}</h4>
                 </div>
             </>
         )

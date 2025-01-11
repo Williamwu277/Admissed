@@ -41,7 +41,15 @@ function Filter() {
             return;
         }
 
+        const maxSize = 512 * 1024; // 500 KB
+
+        if (JSON.stringify(data).length > maxSize) {
+            setAlert(["Data Exceeds 500 KB", "Error"]);
+            return;
+        }
+
         uploadClicked = true;
+        setAlert(["Loading ... Can Take Up to 30s", "Loading"]);
         await fetch("http://0.0.0.0:8000/api/get_graphs", {
 
             method: 'POST',
@@ -68,15 +76,16 @@ function Filter() {
         }).then((response) => {
 
             if("detail" in response){
-                setAlert(response["detail"]);
+                setAlert([response["detail"], "Error"]);
             }else{
+                setAlert(["Success!", "Success"]);
                 setGraphs(response);
                 navigate("/report");
             }
 
         }).catch((error) => {
 
-            setAlert("Error When Generating Report");
+            setAlert(["Error When Generating Report", "Error"]);
 
         });
 
@@ -143,37 +152,39 @@ function Filter() {
 
     return (
         <>
-            <div className={"mainSelection "+(selected===null?"roundBorders":"roundTopBorders")}>
-                <h4>Select Main Program:</h4>
-                <select onChange={(v) => setSelectYear(v.target.value)}>
-                {
-                    yearList.map(year => 
-                        <option key={year} value={year}>{year}</option>
-                    )
-                }
-                </select>
-                <select onChange={(v) => setSelectSchool(v.target.value)}>
-                {
-                    schoolList.map(school => 
-                        <option key={school} value={school}>{school}</option>
-                    )
-                }
-                </select>
-                <select onChange={(v) => setSelectProgram(v.target.value)}>
-                {
-                    programList.map(program => 
-                        <option key={program} value={program}>{program}</option>
-                    )
-                }
-                </select>
-                <button className="filterButton selectButton" onClick={() => {
-                    if(selectYear != null && selectSchool != null && selectProgram != null){
-                        setSelected([selectYear, selectSchool, selectProgram]);
+            <div className="scrollableFilter">
+                <div className={"mainSelection "+(selected===null?"roundBorders":"roundTopBorders")}>
+                    <h4>Select Main Program:</h4>
+                    <select onChange={(v) => setSelectYear(v.target.value)}>
+                    {
+                        yearList.map(year => 
+                            <option key={year} value={year}>{year}</option>
+                        )
                     }
-                }}>Select</button>
-            </div>
-            <div>
-                {renderSecondary()}
+                    </select>
+                    <select onChange={(v) => setSelectSchool(v.target.value)}>
+                    {
+                        schoolList.map(school => 
+                            <option key={school} value={school}>{school}</option>
+                        )
+                    }
+                    </select>
+                    <select onChange={(v) => setSelectProgram(v.target.value)}>
+                    {
+                        programList.map(program => 
+                            <option key={program} value={program}>{program}</option>
+                        )
+                    }
+                    </select>
+                    <button className="filterButton selectButton" onClick={() => {
+                        if(selectYear != null && selectSchool != null && selectProgram != null){
+                            setSelected([selectYear, selectSchool, selectProgram]);
+                        }
+                    }}>Select</button>
+                </div>
+                <div>
+                    {renderSecondary()}
+                </div>
             </div>
         </>
     )

@@ -12,7 +12,7 @@ function App() {
 
   const [data, setData] = useState([]);
   const [graphs, setGraphs] = useState(null);
-  const [alert, setAlert] = useState("");
+  const [alert, setAlert] = useState([]);
 
   return (
     <DataContext.Provider value={{data, setData}}>

@@ -1,5 +1,5 @@
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
-# from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 from server import upload_data, generate_graphs
 from typing import List, Dict
 from pydantic import BaseModel
@@ -13,7 +13,7 @@ app = FastAPI()
 
 
 # AWS Lambda handles CORS
-'''
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -21,7 +21,7 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["*"]
 )
-'''
+
 
 
 class UserQuery(BaseModel):

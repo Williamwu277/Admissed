@@ -1,7 +1,7 @@
 .homepage {
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: 225px 290px 225px 225px 225px 1fr;
+    grid-template-rows: 225px auto auto auto auto 1fr;
     justify-items: center;
     height: 190vh;
     width: 100%;
@@ -13,20 +13,27 @@
 .title {
     color: steelblue;
     font-weight: bold;
-    font-size: 100px;
+    font-size: clamp(50px, 19vw, 100px);
 }
 
 .infoBar {
     display: grid;
-    grid-template-columns: 100px 275px;
+    grid-template-columns: 100px auto;
     column-gap: 25px;
     justify-content: center;
     align-items: center;
     background-color: steelblue;
     color: white;
-    width: 500px;
-    height: 175px;
+    width: 35%;
+    max-width: 450px;
+    min-width: 300px;
+    height: auto;
     border-radius: 20px;
+    padding-top: 25px;
+    padding-bottom: 25px;
+    padding-left: 25px;
+    padding-right: 35px;
+    margin-top: 40px;
 }
 
 .icon {

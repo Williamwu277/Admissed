@@ -1,16 +1,18 @@
 .mainSelection {
     display: grid;
-    grid-template-columns: 17% 7% 20% 20% 10%;
-    place-content: space-evenly;
+    grid-template-columns: 170px 70px 190px 190px 90px;
+    justify-content: center;
     align-items: center;
+    column-gap: 25px;
     background-color: steelblue;
     color: white;
-    width: 980px;
-    margin: 0 auto;
+    width: 1000px;
     height: 75px;
-    padding-left: 60px;
-    padding-right: 60px;
+    padding-left: 30px;
+    padding-right: 30px;
     margin-top: 50px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .secondarySelection {
@@ -19,15 +21,15 @@
     justify-items: center;
     grid-template-columns: auto;
     background-color: lightsteelblue;
-    width: 80%;
     height: 300px;
-    max-width: 980px;
-    margin: 0 auto;
+    width: 1000px;
     border-bottom-left-radius: 20px;
     border-bottom-right-radius: 20px;
     padding-bottom: 40px;
-    padding-left: 60px;
-    padding-right: 60px;
+    padding-left: 30px;
+    padding-right: 30px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .roundBorders {
@@ -55,6 +57,7 @@
     margin-left: 10px;
     margin-right: 10px;
     overflow-x: hidden;
+    align-content: start;
 }
 
 .scrollLine {
@@ -109,4 +112,12 @@
 .filterBox {
     height: 12px;
     width: 12px;
+}
+
+.scrollableFilter {
+    width: 80%;
+    max-width: 1100px;
+    min-width: 350px;
+    overflow-x: auto;
+    margin: 0 auto;
 }

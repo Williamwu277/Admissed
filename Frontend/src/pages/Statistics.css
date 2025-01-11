@@ -4,7 +4,7 @@
 }
 
 .padder {
-    padding-top: 100px;
+    padding-top: 50px;
 }
 
 .report {
@@ -13,15 +13,22 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+    min-width: 350px;
+    max-width: 1000px;
 }
 
 .separator {
     border: 1px solid black;
-    width: 800px;
+    width: 100%;
+    min-width: 350px;
+    max-width: 1000px;
 }
 
 .reportTitle {
+    margin-top: 13vh;
     margin-bottom: 0px;
 }
 
@@ -29,6 +36,9 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 100%;
+    min-width: 350px;
+    max-width: 1000px;
 }
 
 .figureTitle {
@@ -38,6 +48,22 @@
 .statisticsNA {
     display: grid;
     justify-content: center;
-    margin-top: 5%;
+    margin-top: calc(50px + 10vh);
     color: steelblue;
+}
+
+.scrollableStatistics {
+    display: grid;
+    justify-content: center;
+    width: 100%;
+    min-width: 350px;
+    max-width: 1000px;
+    overflow-x: auto;
+}
+
+.statisticImage {
+    width: 80%;
+    min-width: 350px;
+    max-width: 700px;
+    height: auto;
 }

@@ -185,32 +185,36 @@ function View() {
                         </div>
                     </div>
                     <Filter></Filter>
-                    <table className="optionTable">
-                        <tbody>
-                            <tr>
-                                <td><button className="viewButton optionButton" onClick={sortHandler}>Sort</button></td>
-                                <td><button className="viewButton optionButton" onClick={filterHandler}>Filter</button></td>
-                                <td><button className="viewButton optionButton" onClick={editHandler}>Delete</button></td>
-                                <td><button className="viewButton optionButton" onClick={
-                                    () => {
-                                        if(sortBy[0] == "Flag" && sortBy[1] == "Up"){
-                                            setSort(["Flag", "Down"]);
-                                        }else {
-                                            setSort(["Flag", "Up"]);
+                    <div className="scrollableOption">
+                        <table className="optionTable">
+                            <tbody>
+                                <tr>
+                                    <td><button className="viewButton optionButton" onClick={sortHandler}>Sort</button></td>
+                                    <td><button className="viewButton optionButton" onClick={filterHandler}>Filter</button></td>
+                                    <td><button className="viewButton optionButton" onClick={editHandler}>Delete</button></td>
+                                    <td><button className="viewButton optionButton" onClick={
+                                        () => {
+                                            if(sortBy[0] == "Flag" && sortBy[1] == "Up"){
+                                                setSort(["Flag", "Down"]);
+                                            }else {
+                                                setSort(["Flag", "Up"]);
+                                            }
                                         }
-                                    }
-                                }>Incomplete</button></td>
-                                <td>Page {page}</td>
-                                <td><input type="range" min="1" max={Math.ceil(data.length / TABLE_SIZE)} value={page} onChange={(v)=>setPage(v.target.value)}></input></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <table className="viewTable">
-                        <tbody>
-                            {renderMode()}
-                            {renderData()}
-                        </tbody>
-                    </table>
+                                    }>Incomplete</button></td>
+                                    <td>Page {page}</td>
+                                    <td><input type="range" min="1" max={Math.ceil(data.length / TABLE_SIZE)} value={page} onChange={(v)=>setPage(v.target.value)}></input></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div className="scrollableTable">
+                        <table className="viewTable">
+                            <tbody>
+                                {renderMode()}
+                                {renderData()}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 :
                 <div className="viewNA">

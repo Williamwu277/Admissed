@@ -1,11 +1,17 @@
 .viewTable {
 
-    width: 1100px;
-    margin: 0 auto;
     border-collapse: collapse;
-    margin-bottom: 5%;
     table-layout: fixed;
+}
 
+.scrollableTable {
+    width: 80%;
+    max-width: 1100px;
+    min-width: 350px;
+    margin: 0 auto;
+    margin-bottom: 5%;
+    overflow-x: auto;
+    border: 5px solid steelblue;
 }
 
 .rowTable:nth-child(odd) {
@@ -16,9 +22,21 @@
 
 .optionTable {
 
-    padding-top: 50px;
     margin: 0 auto;
     margin-bottom: 0;
+}
+
+.scrollableOption {
+    width: 50%;
+    max-width: 700px;
+    min-width: 300px;
+    overflow-x: auto;
+    padding-top: 0px;
+    margin: 0 auto;
+    margin-bottom: 10px;
+    margin-top: 50px;
+    border: 5px solid steelblue;
+    border-radius: 10px;
 }
 
 th, td {
@@ -31,7 +49,7 @@ th, td {
 }
 
 th {
-
+    padding: 10px;
     background-color: steelblue;
     color: white;
     text-align: left;
@@ -49,17 +67,27 @@ th {
 .viewNA {
     display: grid;
     justify-content: center;
-    margin-top: 5%;
+    margin-top: 10vh;
     color: steelblue;
 }
 
 .viewInfoBar {
     display: grid;
-    grid-template-columns: 345px 345px 345px;
+    grid-template-columns: repeat(auto-fit, 345px);
     column-gap: 32px;
     margin: 0 auto;
-    width: 1100px;
+    width: 80%;
+    max-width: 1100px;
+    min-width: 345px;
     margin-top: 75px;
+    row-gap: 20px;
+    justify-content: center;
+}
+
+@media (max-width: 1300px) {
+    .viewInfoBar {
+      grid-template-columns: 345px;
+    }
 }
 
 .viewInfoCell {

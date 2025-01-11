@@ -14,7 +14,7 @@ function Statistics() {
             return (
                 <div className="statisticsNA">
                     <h1>
-                        Submit Query to Generate Report
+                        Submit Query for Report
                     </h1>
                 </div>
             )
@@ -28,30 +28,32 @@ function Statistics() {
                     <p>{graphs["Description"]}</p>
                     <h4 className="figureTitle">Figure 0. Table of Statistics</h4>
                     <hr className="separator" />
-                    <table>
-                        <tbody>
-                            <tr>
-                                <th>% Admission</th>
-                                <th>Mean Admission Avg</th>
-                                <th>Median Admission Avg</th>
-                                <th>Min Admission Avg</th>
-                                <th>Max Admission Avg</th>
-                            </tr>
-                            <tr>
-                                <td>{graphs["Stats"]["Percent Admission"]}%</td>
-                                <td>{graphs["Stats"]["Mean"]}%</td>
-                                <td>{graphs["Stats"]["Median"]}%</td>
-                                <td>{graphs["Stats"]["Min"]}%</td>
-                                <td>{graphs["Stats"]["Max"]}%</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div className="scrollableStatistics">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <th>% Admission</th>
+                                    <th>Mean Admission Avg</th>
+                                    <th>Median Admission Avg</th>
+                                    <th>Min Admission Avg</th>
+                                    <th>Max Admission Avg</th>
+                                </tr>
+                                <tr>
+                                    <td>{graphs["Stats"]["Percent Admission"]}%</td>
+                                    <td>{graphs["Stats"]["Mean"]}%</td>
+                                    <td>{graphs["Stats"]["Median"]}%</td>
+                                    <td>{graphs["Stats"]["Min"]}%</td>
+                                    <td>{graphs["Stats"]["Max"]}%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                     {
                         graphs["Images"].map((img, ind) => 
                             <div key={img["Name"]} className="graph">
                                 <h4 className="figureTitle">Figure {ind+1}. {img["Name"]}</h4>
                                 <hr className="separator" />
-                                <img src={"data:image/jpeg;base64,"+img["Image"]}></img>
+                                <img className="statisticImage" src={"data:image/jpeg;base64,"+img["Image"]}></img>
                                 <p>{img["Description"]}</p>
                             </div>
                         )

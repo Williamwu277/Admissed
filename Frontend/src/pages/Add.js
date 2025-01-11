@@ -15,8 +15,8 @@ function Add() {
                 <div className="infoBar">
                     <img className="icon" src={spreadsheetImage}></img>
                     <p>
-                        Procure Ontario university admission statistics data. 
-                        Ensure columns Year, Status, School, Program, Average and Decision Date (D/M/Y) exist (Case Sensitive).
+                        Procure Ontario university admission statistics data as a spreadsheet.
+                        Ensure case-sensitive columns named Year, Status, School, Program, Average and Decision Date (D/M/Y) exist.
                         Upload a spreadsheet CSV file
                     </p>
                 </div>
@@ -31,8 +31,8 @@ function Add() {
                 <div className="infoBar">
                     <img className="icon" src={messageImage}></img>
                     <p>
-                        Access the Github for sample data.
-                        Otherwise, contact here for other inquiries
+                        Access the <a href="https://github.com/Williamwu277/Admissed" target="_blank" rel="noopener noreferrer">Github</a> for sample data
+                        and further clarification on usage.
                     </p>
                 </div>
             </div>
