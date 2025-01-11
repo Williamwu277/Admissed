@@ -2,56 +2,45 @@ from Const import SCHOOL_NICKNAMES, PROGRAM_NICKNAMES, USE_COLS, ID_THRESHOLD
 from random import randint
 from datetime import datetime
 from calendar import month_name
+from base64 import b64encode
+from re import sub
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib
 import io
-import re
-import base64
+import time
+
 
 matplotlib.use('agg')
+statuses = ["Accepted", "Deferred", "Waitlisted", "Rejected"]
 
 
-def date_add_year(r):
+def date_converter(date, year):
     
     # depending on how many numerical / alphabetical characters
     # add the year in case its missing 
-    s = r["Decision Date"]
-    numeric, alphabetical = 0, 0
 
-    if pd.isna(s):
+    if pd.isna(date):
         return pd.NA
-
-    for i in range(len(s)):
-        if s[i].isdigit():
-            numeric += 1
-        elif s[i].isalpha():
-            alphabetical += 1
     
     # determine which year to add
-    y = r["Year"]
-    try:
-        dt = pd.to_datetime(s + " " + y, dayfirst=True)
+    final_date = pd.to_datetime(date, errors="coerce", dayfirst=True)
+    is_na = pd.isna(final_date)
+    if is_na and not pd.isna(year):
 
-        if dt.month >= 7: 
-            y = str(int(y) - 1)
-    except:
-        pass
-    
-    if alphabetical == 0 and numeric <= 4:
-        s = s + " " + y
+        final_date = pd.to_datetime(date + " " + year, errors="coerce", dayfirst=True)
 
-    elif alphabetical > 0 and numeric <= 2:
-        s = s + " " + y
+        if pd.isna(final_date):
+            return pd.NA
+        else:
+            if final_date.month >= 7:
+                final_date = final_date - pd.DateOffset(months=1)
+            return final_date.strftime('%d-%m-%Y')
+    elif is_na:
+        return pd.NA
+    return final_date.strftime('%d-%m-%Y')
     
-    s = pd.to_datetime(s, errors="coerce", dayfirst=True)
-    if pd.isna(s):
-        r["Decision Date"] = pd.NA
-    else:
-        r["Decision Date"] = s.strftime('%d-%m-%Y')
-    
-    return r
 
 
 def year_converter(y):
@@ -60,12 +49,11 @@ def year_converter(y):
         return pd.NA
 
     # try to convert to a valid year
-    try:
-        v = int(y.strip())
-        assert(1900 <= v <= datetime.now().year)
-        return str(v)
-    except:
-        return pd.NA
+    y = y.strip()
+    if y.isdigit() and 1900 <= int(y) <= datetime.now().year + 1:
+        return str(y)
+    
+    return pd.NA
 
 
 def average_converter(a):
@@ -74,13 +62,15 @@ def average_converter(a):
         return pd.NA
 
     # try to convert to a valid percentage
-    a = re.sub(r"[^0-9.]", "", a)
+    a = sub(r"[^0-9.]", "", a)
 
     try:
         v = float(a)
         v = round(v, 1)
-        assert(0 <= v <= 100)
-        return str(v)
+        if 0 <= v <= 100:
+            return str(v)
+        else:
+            return pd.NA
     except: 
         return pd.NA
 
@@ -92,7 +82,7 @@ def status_converter(s):
 
     # one of accepted, deferred, waitlisted or rejected
     s = s.capitalize()
-    if s in ["Accepted", "Deferred", "Waitlisted", "Rejected"]:
+    if s in statuses:
         return s
     else:
         return pd.NA
@@ -102,7 +92,10 @@ def school_converter(s):
 
     if pd.isna(s):
         return pd.NA
-    elif len(s.strip()) == 0:
+    
+    s = s.strip()
+
+    if len(s) == 0:
         return pd.NA
 
     # try best to convert to known school
@@ -119,7 +112,10 @@ def program_converter(s):
 
     if pd.isna(s):
         return pd.NA
-    elif len(s.strip()) == 0:
+    
+    s = s.strip()
+
+    if len(s) == 0:
         return pd.NA
 
     # try best to convert to known program
@@ -132,30 +128,29 @@ def program_converter(s):
     return pd.NA
 
 
-def validate_data(data):
-
-    data["Year"] = data["Year"].apply(lambda x: year_converter(x))
-    data["Status"] = data["Status"].apply(lambda x: status_converter(x))
-    data["School"] = data["School"].apply(lambda x: school_converter(x))
-    data["Program"] = data["Program"].apply(lambda x: program_converter(x))
-    data["Average"] = data["Average"].apply(lambda x: average_converter(x))
-    data = data.apply(date_add_year, axis=1)
-    #data["Decision Date"] = pd.to_datetime(data["Decision Date"], errors="coerce").dt.strftime('%Y-%m-%d')
-
-    return data
-
-
 def upload_data(data, ids):
 
     all_ids = set(ids)
 
     # read in data from csv, preprocess it while converting to string
     try:
+        
         data = pd.read_csv(
             data, 
             usecols=USE_COLS, 
-            dtype="string"
+            dtype = {
+                "Decision Date": "string"
+            },
+            converters = {
+                "Status": status_converter,
+                "Year": year_converter,
+                "School": school_converter,
+                "Program": program_converter,
+                "Average": average_converter,
+            }
         )
+        data["Decision Date"] = [date_converter(date, year) for date, year in zip(data["Decision Date"], data["Year"])]
+
     except pd.errors.EmptyDataError:
         return {
             "Status": 400,
@@ -171,11 +166,12 @@ def upload_data(data, ids):
             "Status": 400,
             "Description": "Data Missing Fields/Columns"
         }
-    except Exception:
+    '''except Exception as e:
+        print(e)
         return {
             "Status": 400,
             "Description": "Issue with Uploaded Data"
-        }
+        }'''
     
     # if empty, return empty data
     if data.empty:
@@ -184,16 +180,7 @@ def upload_data(data, ids):
             "Status": 400,
             "Description": "Data Missing Fields/Columns"
         }
-
-    # validate data
-    try:
-        data = validate_data(data)
-    except Exception:
-        return {
-            "Status": 400,
-            "Description": "Error Parsing/Incorrect Data"
-        }
-
+    
     # create id column
     ids = []
     for _ in range(len(data)):
@@ -256,7 +243,14 @@ def generate_graphs(query, filters, data):
     # validate data
     # same steps apply as in the upload function
     try:
-        original_table = validate_data(original_table)
+
+        original_table["Year"] = original_table["Year"].apply(lambda x: year_converter(x))
+        original_table["Status"] = original_table["Status"].apply(lambda x: status_converter(x))
+        original_table["School"] = original_table["School"].apply(lambda x: school_converter(x))
+        original_table["Program"] = original_table["Program"].apply(lambda x: program_converter(x))
+        original_table["Average"] = original_table["Average"].apply(lambda x: average_converter(x))
+        original_table["Decision Date"] = [date_converter(date, year) for date, year in zip(original_table["Decision Date"], original_table["Year"])]
+
     except Exception:
         return {
             "Status": 400,
@@ -291,8 +285,6 @@ def generate_graphs(query, filters, data):
         original_table["School"].isin(filter_schools) &
         original_table["Program"].isin(filter_programs)
     ]
-
-    # TODO: Admission average per month
 
     ret = []
     report_string = ""
@@ -333,7 +325,7 @@ def generate_graphs(query, filters, data):
                 f"{report_string}"
                 "Finally, it will evaluate the general percentage admission, mean, median, min and max. "
                 "Note that since the data could be user-collected, the conclusions reached by this report are "
-                "subject to various biases and should be taken with a grain of salt. "
+                "subject to various biases and should not be taken seriously. "
                 "A blank report could arise from missing and/or incorrect data."
             ),
             "Images": ret,
@@ -355,18 +347,20 @@ def generate_admissions_per_month_yearly(pruned_table, filter_years, query):
     for year in sorted(filter_years):
 
         # prune for a certain school year and the singular program
+        month_begin = pd.to_datetime(str(int(year)-1) + " Sept 1", dayfirst=True)
+        month_end = pd.to_datetime(year + " July 1", dayfirst=True)
         df = pruned_table[
             (pruned_table["School"].isin([query["School"]])) &
             (pruned_table["Program"].isin([query["Program"]])) &
-            (pd.to_datetime(str(int(year)-1) + " Sept 1", dayfirst=True) < pruned_table["Decision Date"]) &
-            (pruned_table["Decision Date"] < pd.to_datetime(year + " July 1", dayfirst=True)) &
+            (month_begin < pruned_table["Decision Date"]) &
+            (pruned_table["Decision Date"] < month_end) &
             (pruned_table["Status"] == "Accepted")
         ][["Decision Date"]]
 
         # aggregate to months and count admissions
         df["Admission Count"] = 1
         df = df.groupby(pd.Grouper(key="Decision Date", freq="ME")).agg("sum")
-        df = df.reindex(pd.date_range(start=pd.to_datetime(str(int(year)-1) + " Sept 1", dayfirst=True), end=pd.to_datetime(year + " July 1", dayfirst=True), freq="ME"), fill_value=0)
+        df = df.reindex(pd.date_range(start=month_begin, end=month_end, freq="ME"), fill_value=0)
         x_label = months = df["Month"] = df.index.map(lambda x: month_name[x.month])
 
         # plot on the bar graph
@@ -407,7 +401,7 @@ def generate_admissions_per_month_yearly(pruned_table, filter_years, query):
     plt.close()
 
     return {
-        "Image": base64.b64encode(img_file.getvalue()).decode(),
+        "Image": b64encode(img_file.getvalue()).decode(),
         "Name": f"Monthly Admission Count for {query["Program"]} at {query["School"]}",
         "Description": description
     }
@@ -425,18 +419,20 @@ def generate_median_per_month_yearly(pruned_table, filter_years, query):
     for year in sorted(filter_years):
 
         # prune for a certain school year and the singular program
+        month_begin = pd.to_datetime(str(int(year)-1) + " Sept 1", dayfirst=True)
+        month_end = pd.to_datetime(year + " July 1", dayfirst=True)
         df = pruned_table[
             (pruned_table["School"].isin([query["School"]])) &
             (pruned_table["Program"].isin([query["Program"]])) &
-            (pd.to_datetime(str(int(year)-1) + " Sept 1", dayfirst=True) < pruned_table["Decision Date"]) &
-            (pruned_table["Decision Date"] < pd.to_datetime(year + " July 1", dayfirst=True)) &
+            (month_begin < pruned_table["Decision Date"]) &
+            (pruned_table["Decision Date"] < month_end) &
             (pruned_table["Status"] == "Accepted")
         ][["Decision Date", "Average"]]
 
         # aggregate to months and find median
         df["Average"] = df["Average"].astype(float)
         df = df.groupby(pd.Grouper(key="Decision Date", freq="ME")).agg("median")
-        df = df.reindex(pd.date_range(start=pd.to_datetime(str(int(year)-1) + " Sept 1", dayfirst=True), end=pd.to_datetime(year + " July 1", dayfirst=True), freq="ME"), fill_value=0)
+        df = df.reindex(pd.date_range(start=month_begin, end=month_end, freq="ME"), fill_value=0)
         months = df["Month"] = df.index.map(lambda x: month_name[x.month][:3])
 
         # plot on the bar graph
@@ -457,7 +453,7 @@ def generate_median_per_month_yearly(pruned_table, filter_years, query):
     plt.close()
 
     return {
-        "Image": base64.b64encode(img_file.getvalue()).decode(),
+        "Image": b64encode(img_file.getvalue()).decode(),
         "Name": f"Monthly Median Admission % for {query["Program"]} at {query["School"]} in {query["Year"]}",
         "Description": (
             "Note that some data points may be skewed due to low sample size. Refer to the previous graph for such points."
@@ -513,7 +509,7 @@ def generate_acceptance_percent_by_grade_yearly(pruned_table, filter_years, quer
     plt.close()
 
     return {
-        "Image": base64.b64encode(img_file.getvalue()).decode(),
+        "Image": b64encode(img_file.getvalue()).decode(),
         "Name": f"Acceptance Rate by Grade for {query["Program"]} at {query["School"]}",
         "Description": "Points with too low of a sample size have been omitted from this graph for more clarity."
     }
@@ -565,7 +561,7 @@ def generate_acceptance_number_by_grade(pruned_table, query):
     plt.close()
 
     return {
-        "Image": base64.b64encode(img_file.getvalue()).decode(),
+        "Image": b64encode(img_file.getvalue()).decode(),
         "Name": f"Acceptance Verdict by Grade for {query["Program"]} at {query["School"]} in {query["Year"]}",
         "Description": "'Other' includes the summation of the applicants who received a Waitlisted, Deferred or Rejected verdict."
     }
@@ -606,7 +602,7 @@ def generate_school_program_acceptance_rate(pruned_table, filter_schools, query)
     plt.close()
 
     return {
-        "Image": base64.b64encode(img_file.getvalue()).decode(),
+        "Image": b64encode(img_file.getvalue()).decode(),
         "Name": f"Acceptance Rate by Grade for {query["Program"]} in {query["Year"]}",
         "Description": "Points with too low of a sample size have been omitted from this graph for more clarity."
     }
@@ -647,7 +643,7 @@ def generate_acceptance_percent_multiple_program(pruned_table, filter_programs, 
     plt.close()
 
     return {
-        "Image": base64.b64encode(img_file.getvalue()).decode(),
+        "Image": b64encode(img_file.getvalue()).decode(),
         "Name": f"Acceptance Rate by Grade for {query["School"]} in {query["Year"]}",
         "Description": "Points with too low of a sample size have been omitted from this graph for more clarity."
     }
