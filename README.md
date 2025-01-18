@@ -1,8 +1,8 @@
 # AdmissEd
 An admission statistics web app. User-collected admissions data is hard for the human-eye to process — to combat this, upload it to AdmissEd and view your data in the format of graphs and statistics. Mobile support exists, so check out the website on your phone too. 🌎 **Sample data can be found in Sample.csv**. Try it live at [admissed.com](https://admissed.com)!
 
-<img src="https://cdn.discordapp.com/attachments/883514118924013668/1327598522123685950/Screenshot_2025-01-11_at_6.14.26_AM.png?ex=6783a5f9&is=67825479&hm=e7fd477055434db7e89e680dc0f1ae6fd29f432f0b58d7f249e46bfbcc0a854e&" width="400" height="auto"></img>
-<img src="https://cdn.discordapp.com/attachments/883514118924013668/1327598522605899827/Screenshot_2025-01-11_at_6.14.49_AM.png?ex=6783a5f9&is=67825479&hm=3aee251ac483a8b3874c8f0da875c82069165dee2427d4017b812d545bbd8807&" width="400" height="auto"></img>
+<img src="https://github.com/Williamwu277/Admissed/blob/main/Frontend/src/image/AdmissedView.png?raw=true" width="400" height="auto"></img>
+<img src="https://github.com/Williamwu277/Admissed/blob/main/Frontend/src/image/AdmissedReport.png?raw=true" width="400" height="auto"></img>
 
 ## Table of Contents
 1. [About](#about)
